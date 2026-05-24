@@ -187,6 +187,8 @@ def combine(parsed, t, onesym):
                     addend = str(oplistN[index]) + '*' + str(oplistN[index+1])
                     oplistN2.append(addend)
                     index += 1
+                    if index+1 == len(oplistP):
+                        index += 1
                 elif index+2 < len(oplistP):
                     if oplistP[index+1] == '+' or \
                             oplistP[index+1] == '-' or \
@@ -244,7 +246,8 @@ def combine(parsed, t, onesym):
     print(oplistP, oplistP2)
     print(oplistN, oplistN2)
     print('parsed:', parsed)
-    if len(oplistP2) == 1:
+    if oplistP2[0] == 'var' or oplistP2[0] == 'const':
+        print('onesym')
         if t == 1:
             onesym += 1
         else:
@@ -374,10 +377,10 @@ def solveTilVar(p, c, o, s):
                     step.append(copy.deepcopy(cc2))
                     step.append(copy.deepcopy(pc2))
                 if p == pc2:
-                    step.append(copy.deepcopy(c))
-                    step.append(copy.deepcopy(p))
                     step.append(copy.deepcopy(cc1))
                     step.append(copy.deepcopy(pc1))
+                    step.append(copy.deepcopy(c))
+                    step.append(copy.deepcopy(p))
                 print('Step Part 1:', step)
                 lastchar = True
                 print(v)
@@ -466,15 +469,21 @@ def solveTilVar(p, c, o, s):
                         ch2s += char
                     else:
                         ch2u += char
+                print('c b4 pop:', c)
+                cLen = len(c)
                 c.pop(v-2)
                 print('ch2', c)
-                ch2i = ch2s + ch2o + str(rl)
+                if cLen == 1:
+                    ch2i = str(rl)
+                else:
+                    ch2i = ch2s + ch2o + str(rl)
                 c.insert(v-2, ch2i)
                 print(ch2u, 'a', ch2o, 'b', str(rl))
                 print('ch2', c, ch2i)
 
                 print('h')
-                c.pop(v-1)
+                if cLen != 1:
+                    c.pop(v-1)
                 # if lastchar == True:
                 indexSS -= 1
                 print(indexSS)
@@ -488,16 +497,18 @@ def solveTilVar(p, c, o, s):
                     step.append(copy.deepcopy(cc2))
                     step.append(copy.deepcopy(pc2))
                 if p == pc2:
-                    step.append(copy.deepcopy(c))
-                    step.append(copy.deepcopy(p))
                     step.append(copy.deepcopy(cc1))
                     step.append(copy.deepcopy(pc1))
+                    step.append(copy.deepcopy(c))
+                    step.append(copy.deepcopy(p))
                 print('Step Part 3:', step)
                 stepsSTV.append(copy.deepcopy(step))
                 print('Updated Steps:', stepsSTV)
                 if len(p) == prev_len:
-                    p.pop(v-1)
+                    if cLen != 1:
+                        p.pop(v-1)
                     if len(p) <= 2:
+                        print('Break Bool, p/c status:', p, c)
                         breakBool = True
             else:
                 print('b')
@@ -945,13 +956,15 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                 print('jList check', constB, popLen, popIndex, jVal)
                 jList.append((constB, popLen, popIndex, jVal))
             if len(jList) == 0:
-                constB = c2[0]
+                constB = c1[0]
                 popIndex = 1
                 popLen = len(c1[0])
                 jVal = 0
                 jList.append((constB, popLen, popIndex, jVal))
             for k in jList:
+                print(jList, k[0], constA)
                 constR = float(k[0])/float(constA)
+                print('Result:', constR)
                 if k[2] == 0:
                     c1[k[3]] = c1[k[3]][k[1]:]
                 else:
@@ -961,9 +974,10 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                 else:
                     c1[k[3]] += str(constR)
             var = False
+            print('var append check:', p2, i, i[1])
             if 'var' in p2[i[1]]:
                 var = True
-            c1.pop(i[1])
+            c2.pop(i[1])
             if not var:
                 c2.insert(i[1], '1')
             else:
@@ -1025,7 +1039,7 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                 print('jList check', constB, popLen, popIndex, jVal)
                 jList.append((constB, popLen, popIndex, jVal))
             if len(jList) == 0:
-                constB = c2[0]
+                constB = c1[0]
                 popIndex = 1
                 popLen = len(c1[0])
                 jVal = 0
@@ -1043,7 +1057,7 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
             var = False
             if 'var' in p2[i[1]]:
                 var = True
-            c1.pop(i[1])
+            c2.pop(i[1])
             if not var:
                 c2.insert(i[1], '1')
             else:
@@ -1140,6 +1154,7 @@ while run:
                     stepIndex = 0
                     steps = []
                     input_screen = True
+                    onesym = 0
                     calc_done = False
             elif event.key == pygame.K_RETURN:
                 if input_screen == True:
@@ -1152,6 +1167,7 @@ while run:
                     input_screen = True
                     steps = []
                     stepIndex = 0
+                    onesym = 0
                     calc_done = False
             else:
                 current_letter = event.unicode
@@ -1169,6 +1185,7 @@ while run:
         op2 = []
         os1 = []
         os2 = []
+        print('Onesym:', onesym)
         if onesym == 1 or onesym == 3:
             onesym1 = True
         if onesym1 != True:
@@ -1185,6 +1202,7 @@ while run:
             onesym2 = True
         if onesym2 != True:
             op2, os2 = op(pc2)
+            print('\033[32mSolveTilVar2')
             pc2, cc2, op2, os2, steps2 = solveTilVar(pc2, cc2, op2, os2)
             for step in steps2:
                 steps.append(step)
