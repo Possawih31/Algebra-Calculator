@@ -1,7 +1,7 @@
 # Algebra-Calculator
 **What is this program?**
 
-This is an Calculator for Basic Algebraic Problems designed to tell you the exact steps needed to solving the equation. It currently is in pre-release, and does not yet support parentheses or more complicated functions. Press the *ENTER* key to move forward in the explanation process or to submit your equation, and press *BACKSPACE* to go back one step in the explanation process or go back to the equation entering screen. Use +, -, *, and / for the operations.
+This is a Calculator for Basic Algebraic Problems designed to tell you the exact steps needed to solving the equation. It currently is in pre-release, and does not yet support parentheses or more complicated functions. Press the *ENTER* key to move forward in the explanation process or to submit your equation, and press *BACKSPACE* to go back one step in the explanation process or go back to the equation entering screen. Use +, -, *, and / for the operations.
 
 Example of supported equation: 3x+1+2+3=4+5 (Solution: x=1)
 
