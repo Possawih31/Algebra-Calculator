@@ -306,7 +306,10 @@ def recombine(c, p):
                             equation += char
                         elif '*' in p[index]:
                             if 'var' in p[index]:
-                                if p[index][1] != 'v':
+                                fullVal = c[index].replace('*' + variable, '')
+                                if fullVal != '1':
+                                    equation += char
+                                elif p[index][1] != 'v':
                                     pass
                                 else:
                                     equation += char
@@ -368,7 +371,19 @@ def solveTilVar(p, c, o, s):
         iterations += 1
         if len(p) >= indexSS:
             print(v)
-            if 'var' not in p[v]:
+            # variable check
+            varCheck = 'Pass'
+            if 'var' in p[v]:
+                varCheck = 'Fail'
+            elif v+1 < len(p):
+                if 'var' in p[v+1]:
+                    if '*' in p[v+1] or '/' in p[v+1]:
+                        varCheck = 'Fail'
+            elif v != 0:
+                if 'var' in p[v-1]:
+                    if '*' in p[v-1] or '/' in p[v-1]:
+                        varCheck = 'Fail'
+            if varCheck == 'Pass':
                 step = []
                 step.append('solveTilVar')
                 if p == pc1:
@@ -546,12 +561,28 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                     sub = (char, index)
                     opl1.append(sub)
         index += 1
+    index = 0
+    for i in p1:
+        if 'var' not in i:
+            for char in i:
+                if char == '+' or char == '-':
+                    sub = (char, index)
+                    opl1.append(sub)
+        index += 1
     opl2 = []
     index = 0
     for i in p2:
         if 'var' in i:
             for char in i:
                 if char == '+' or char == '-' or char == '*' or char == '/':
+                    sub = (char, index)
+                    opl2.append(sub)
+        index += 1
+    index = 0
+    for i in p2:
+        if 'var' not in i:
+            for char in i:
+                if char == '+' or char == '-':
                     sub = (char, index)
                     opl2.append(sub)
         index += 1
@@ -613,18 +644,25 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
             opSolve = i[0]
             opPassed = False
             constA = ''
-            if p1[i[1]][0] != 'v':
+            print(p1, i[1])
+            if p1[i[1]][0] != 'v' and 'var' not in p1[i[1]]:
                 for char in c1[i[1]]:
-                    if not opPassed:
-                        constA += str(char)
-                    elif char == '+' or char == '-':
+                    if char == '+' or char == '-':
                         opPassed = True
+                    elif opPassed:
+                        constA += str(char)
+            elif p1[i[1]][0] != 'v':
+                for char in c1[i[1]]:
+                    if char == '+' or char == '-':
+                        opPassed = True
+                    elif not opPassed:
+                        constA += str(char)
             if p1[i[1]][0] == 'v':
                 for char in c1[i[1]]:
-                    if opPassed:
-                        constA += str(char)
-                    elif char == '+' or char == '-':
+                    if char == '+' or char == '-':
                         opPassed = True
+                    elif opPassed:
+                        constA += str(char)
             for j in opl2:
                 if j[0] == '+' or j[0] == '-':
                     opPassed = False
@@ -655,6 +693,7 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                 popLen = len(c2[0])
                 jVal = 0
             if opSolve == '+':
+                print('const test', constA, constB)
                 constR = float(constB)-float(constA)
             elif opSolve == '-':
                 constR = float(constB)+float(constA)
