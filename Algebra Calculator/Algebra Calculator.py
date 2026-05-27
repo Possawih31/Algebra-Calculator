@@ -549,8 +549,8 @@ def solveTilVar(p, c, o, s):
 
 def solve(p1, c1, o1, s1, p2, c2, o2, s2):
     stepsSolve = []
-    # find the constant related to the variables
     opl1 = []
+    opl = []
     sub = ()
     index = 0
     scoreIndex = 1000
@@ -558,34 +558,55 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
         if 'var' in i:
             for char in i:
                 if char == '+' or char == '-' or char == '*' or char == '/':
+                    score = 0
                     sub = (char, index)
-                    opl1.append(sub)
-        index += 1
-    index = 0
-    for i in p1:
+                    if char == '*' or char == '/':
+                        score += 1000
+                    score += scoreIndex
+                    opl.append((sub, score, index))
         if 'var' not in i:
             for char in i:
                 if char == '+' or char == '-':
+                    score = 0
                     sub = (char, index)
-                    opl1.append(sub)
+                    score += scoreIndex
+                    opl.append((sub, score, index))
         index += 1
-    opl2 = []
+        scoreIndex -= 1
+    sortIndex = 0
+    print('opl1 before sort:', opl)
+    opl.sort(key=lambda x:x[1])
+    for i in opl:
+        opl1.append(i[0])
+    #=====================================
     index = 0
+    scoreIndex = 1000
+    opl = []
+    opl2 = []
     for i in p2:
         if 'var' in i:
             for char in i:
                 if char == '+' or char == '-' or char == '*' or char == '/':
+                    score = 0
                     sub = (char, index)
-                    opl2.append(sub)
-        index += 1
-    index = 0
-    for i in p2:
+                    if char == '*' or char == '/':
+                        score += 1000
+                    score += scoreIndex
+                    opl.append((sub, score, index))
         if 'var' not in i:
             for char in i:
                 if char == '+' or char == '-':
+                    score = 0
                     sub = (char, index)
-                    opl2.append(sub)
+                    score += scoreIndex
+                    opl.append((sub, score, index))
         index += 1
+        scoreIndex -= 1
+    sortIndex = 0
+    print('opl2 before sort:', opl)
+    opl.sort(key=lambda x: x[1])
+    for i in opl:
+        opl2.append(i[0])
     # indp1/indp2 is everything in p separated.
     indp1 = []
     current = ''
