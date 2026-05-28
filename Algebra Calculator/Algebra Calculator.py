@@ -291,7 +291,7 @@ def recombine(c, p):
                 if char == '+' or char == '-' or char == '/' or char == '*':
                     if char == '*':
                         if 'var' in p[index]:
-                            if p1[index][1] != 'v':
+                            if p[index][1] != 'v':
                                 pass
                             else:
                                 equation += char
@@ -626,7 +626,7 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
             current = ''
     sortIndex = 0
     print('process0', opl1, opl2, sortIndex)
-    for i in opl1:
+    for i in p1:
         print('process1', c1, c2, p1, p2)
         if i[0] == '*' or i[0] == '/':
             print('process2')
@@ -650,7 +650,10 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                     break
         sortIndex += 1
     print('opl', opl1, opl2)
-    for i in opl1:
+    iIndex = 0
+    while iIndex < len(opl1):
+        i = opl1[iIndex]
+        print('i =', i)
         step = []
         print('iteration1', i[0], indp2)
         i0 = i[0]
@@ -661,17 +664,26 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
         step.append(copy.deepcopy(c2))
         step.append(copy.deepcopy(p2))
         print('Step Part 1:', step)
+        shiftopl = False
         if i[0] == '+' or i[0] == '-' and 'const' in indp2:
             opSolve = i[0]
             opPassed = False
             constA = ''
             print(p1, i[1])
             if p1[i[1]][0] != 'v' and 'var' not in p1[i[1]]:
-                for char in c1[i[1]]:
-                    if char == '+' or char == '-':
-                        opPassed = True
-                    elif opPassed:
-                        constA += str(char)
+                if i[1] != 0:
+                    for char in c1[i[1]]:
+                        if char == '+' or char == '-':
+                            opPassed = True
+                        elif opPassed:
+                            constA += str(char)
+                else:
+                    shiftopl = True
+                    for char in c1[i[1]]:
+                        if char == '+' or char == '-':
+                            opPassed = True
+                        elif not opPassed:
+                            constA += str(char)
             elif p1[i[1]][0] != 'v':
                 for char in c1[i[1]]:
                     if char == '+' or char == '-':
@@ -728,12 +740,20 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                 c2[jVal] += str(constR)
             c1.pop(i[1])
             p1.pop(i[1])
-        if i[0] == '*':
+            if shiftopl:
+                print('shiftopl')
+                opltemp = []
+                for i in opl1:
+                    print((i[0], i[1]-1), opl1, i)
+                    opltemp.append((i[0], i[1]-1))
+                    opl1 = opltemp
+        elif i[0] == '*':
             print('*')
             jList = []
             opSolve = i[0]
             opPassed = False
             constA = ''
+            print(p1, i, opl1)
             if p1[i[1]][0] != 'v':
                 for char in c1[i[1]]:
                     if char == '*':
@@ -809,7 +829,7 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
             else:
                 p1.insert(i[1], 'const*var')
 
-        if i[0] == '/':
+        elif i[0] == '/':
             print('/')
             jList = []
             opSolve = i[0]
@@ -896,9 +916,13 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
         print('Step Part 2:', step)
         stepsSolve.append(copy.deepcopy(step))
         print('Updated Step:', stepsSolve)
+        iIndex += 1
 # ==========================================================================
 # opl2
-    for i in opl2:
+    iIndex = 0
+    while iIndex < len(opl2):
+        i = opl2[iIndex]
+        print('i =', i)
         step = []
         i0 = i[0]
         step.append(copy.deepcopy(i0))
@@ -913,7 +937,21 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
             opSolve = i[0]
             opPassed = False
             constA = ''
-            if p2[i[1]][0] != 'v':
+            if p2[i[1]][0] != 'v' and 'var' not in p2[i[1]]:
+                if i[1] != 0:
+                    for char in c2[i[1]]:
+                        if char == '+' or char == '-':
+                            opPassed = True
+                        elif opPassed:
+                            constA += str(char)
+                else:
+                    shiftopl = True
+                    for char in c2[i[1]]:
+                        if char == '+' or char == '-':
+                            opPassed = True
+                        elif not opPassed:
+                            constA += str(char)
+            elif p2[i[1]][0] != 'v':
                 for char in c2[i[1]]:
                     if not opPassed:
                         constA += str(char)
@@ -969,7 +1007,14 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
                 c1[jVal] += str(constR)
             c2.pop(i[1])
             p2.pop(i[1])
-        if i[0] == '*':
+            if shiftopl:
+                print('shiftopl')
+                opltemp = []
+                for i in opl2:
+                    print(i[0], str(int(i[1])-1), opl2, i)
+                    opltemp.append((i[0], i[1]-1))
+                    opl2 = opltemp
+        elif i[0] == '*':
             print('*')
             jList = []
             opSolve = i[0]
@@ -1052,7 +1097,7 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
             else:
                 p2.insert(i[1], 'const*var')
 
-        if i[0] == '/':
+        elif i[0] == '/':
             print('/')
             jList = []
             opSolve = i[0]
@@ -1138,6 +1183,7 @@ def solve(p1, c1, o1, s1, p2, c2, o2, s2):
         print('Step Part 2:', step)
         stepsSolve.append(copy.deepcopy(step))
         print('Updated Step:', stepsSolve)
+        iIndex += 1
     print('haj', p1, c1, p2, c2)
     return p1, c1, p2, c2, stepsSolve
 
